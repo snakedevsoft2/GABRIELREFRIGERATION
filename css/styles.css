@@ -32,6 +32,10 @@
   --wa-teal: #075E54;
   --wa-chat: #ECE5DD;
 
+  /* Facebook */
+  --fb: #0866FF;
+  --fb-light: #4C93FF;
+
   /* Neutros */
   --ink-900: #0F1B2D;
   --ink-700: #334155;
@@ -99,7 +103,7 @@ a {
 
 /* Los números de teléfono nunca se parten en dos líneas */
 a[href^="tel:"],
-.channel__text strong {
+.nowrap {
   white-space: nowrap;
 }
 
@@ -318,6 +322,47 @@ button {
 .btn--outline:hover {
   border-color: var(--blue-600);
   color: var(--blue-600);
+}
+
+/* Botón de canal sobre fondo oscuro (footer) */
+.btn--channel {
+  border-color: rgb(255 255 255 / 16%);
+  background: rgb(255 255 255 / 6%);
+  color: #fff;
+}
+
+.btn--channel:hover {
+  border-color: rgb(255 255 255 / 34%);
+  background: rgb(255 255 255 / 12%);
+}
+
+.icon--wa {
+  color: var(--wa-brand);
+}
+
+.icon--fb {
+  color: var(--fb-light);
+}
+
+/* Grupo de botones: todos del mismo ancho. Si no caben en una fila
+   (según --btn-min) se apilan ocupando todo el ancho. */
+.btn-group {
+  --btn-min: 14rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--btn-min)), 1fr));
+  gap: .75rem;
+}
+
+.btn-group > .btn {
+  white-space: normal;
+}
+
+@media (max-width: 599.98px) {
+  /* En móvil todos los botones de acción tienen el mismo alto y tamaño de texto */
+  .btn-group > .btn {
+    padding: 1rem 1.25rem;
+    font-size: 1.02rem;
+  }
 }
 
 /* 5. Encabezado
@@ -612,8 +657,8 @@ button {
   }
 
   .nav__extra {
+    --btn-min: 19rem;
     display: grid;
-    gap: .75rem;
     margin-top: 1.25rem;
   }
 }
@@ -742,9 +787,8 @@ button {
 }
 
 .hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .85rem;
+  --btn-min: 20rem;
+  max-width: 41rem;
   margin-top: 2.1rem;
 }
 
@@ -863,10 +907,6 @@ button {
 
   .hero__overlay {
     background: linear-gradient(180deg, rgb(7 19 38 / 72%) 0%, rgb(7 19 38 / 12%) 26%, rgb(7 19 38 / 55%) 50%, rgb(7 19 38 / 94%) 78%, rgb(7 19 38 / 97%) 100%);
-  }
-
-  .hero__actions .btn {
-    flex: 1 1 100%;
   }
 
   @media (max-width: 359.98px) {
@@ -1297,9 +1337,8 @@ button {
 }
 
 .signs__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .75rem;
+  --btn-min: 15rem;
+  max-width: 31rem;
   margin-top: 2rem;
 }
 
@@ -1445,16 +1484,53 @@ button {
   align-items: center;
 }
 
-.channels {
-  display: grid;
-  gap: 1rem;
+/* Canales oficiales: en filas cuando el espacio es angosto (móvil y columna
+   de escritorio) y en tres columnas iguales cuando hay espacio (tablet). */
+.channels-block {
+  container: canales / inline-size;
   margin-top: 2rem;
 }
 
-.channel {
+.channels__label {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: .5rem;
+  margin-bottom: .9rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+
+.channels__label .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--blue-600);
+}
+
+.channels {
+  display: grid;
+  gap: .9rem;
+}
+
+.channels > li {
+  display: grid;
+  container-type: inline-size;
+}
+
+@container canales (min-width: 40rem) {
+  .channels {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.channel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "icon text arrow";
+  align-items: center;
+  gap: .85rem 1rem;
   padding: 1.1rem 1.25rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1468,12 +1544,24 @@ button {
   transform: translateY(-2px);
 }
 
+/* Tarjeta angosta (tres en fila): icono arriba y texto debajo */
+@container (max-width: 17.5rem) {
+  .channel {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "icon arrow"
+      "text text";
+    align-items: start;
+    padding: 1.25rem;
+  }
+}
+
 .channel__icon {
+  grid-area: icon;
   display: grid;
   place-items: center;
   width: 50px;
   height: 50px;
-  flex: none;
   border-radius: 14px;
   background: var(--blue-600);
   color: #fff;
@@ -1483,9 +1571,19 @@ button {
   background: var(--wa-brand);
 }
 
-.channel--wa .channel__icon .icon {
+.channel--fb .channel__icon {
+  background: var(--fb);
+}
+
+.channel--wa .channel__icon .icon,
+.channel--fb .channel__icon .icon {
   width: 24px;
   height: 24px;
+}
+
+.channel__text {
+  grid-area: text;
+  min-width: 0;
 }
 
 .channel__text small {
@@ -1504,7 +1602,7 @@ button {
 }
 
 .channel__arrow {
-  margin-left: auto;
+  grid-area: arrow;
   color: var(--ink-500);
   transition: transform .25s var(--ease), color .25s var(--ease);
 }
@@ -1732,6 +1830,11 @@ button {
   color: var(--on-dark-muted);
 }
 
+.footer__actions {
+  --btn-min: 9rem;
+  max-width: 22rem;
+}
+
 .footer__title {
   margin-bottom: 1.15rem;
   font-size: .78rem;
@@ -1905,6 +2008,16 @@ button {
   .footer__grid {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  .footer__actions {
+    max-width: none;
+  }
+
+  /* Áreas táctiles más cómodas para los enlaces del footer */
+  .footer__links li + li,
+  .footer__contact li + li {
+    margin-top: .95rem;
   }
 
   .footer__bottom-inner {
