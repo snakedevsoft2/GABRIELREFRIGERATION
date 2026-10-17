@@ -772,8 +772,8 @@ button {
 .hero__panel {
   position: relative;
   width: fit-content;
-  max-width: min(100%, 46rem);
-  padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1.25rem, 3vw, 2.8rem);
+  max-width: min(100%, 54rem);
+  padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1rem, 3vw, 2.8rem);
   border: 1px solid rgb(255 255 255 / 16%);
   border-radius: 28px;
   background: linear-gradient(135deg, rgb(10 26 51 / 64%) 0%, rgb(10 26 51 / 36%) 100%);
@@ -800,7 +800,7 @@ button {
 
 .hero__title {
   margin-top: 1rem;
-  font-size: clamp(2.2rem, 1.2rem + 3.4vw, 4.1rem);
+  font-size: clamp(1.9rem, 1.1rem + 3.3vw, 3.9rem);
   line-height: 1.02;
   letter-spacing: -.035em;
   color: #fff;
