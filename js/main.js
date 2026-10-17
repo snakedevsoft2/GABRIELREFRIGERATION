@@ -6,9 +6,9 @@
   'use strict';
 
   const CONFIG = {
-    // Número con indicativo de país, solo dígitos (sin "+", espacios ni guiones).
-    whatsapp: '573000000000',
-    defaultMessage: 'Hola Gabriel Refrigeration, quiero información sobre el mantenimiento de mi aire acondicionado.',
+    // Número de WhatsApp con indicativo de país, solo dígitos (sin "+", espacios ni guiones).
+    whatsapp: '19392029114',
+    defaultMessage: 'Hola Gabriel Refrigeration, quiero información sobre el mantenimiento y la limpieza de mi aire acondicionado.',
     // Milisegundos antes de mostrar el mensaje junto al botón de WhatsApp.
     teaserDelay: 8000,
     // true = no reproducir los videos automáticamente si el sistema pide "reducir movimiento".
@@ -35,6 +35,44 @@
     },
   };
 
+  /* Intro: la tarjeta de presentación y el aire acondicionado. La animación es CSS y
+     termina sola; aquí se permite saltarla (clic, toque, tecla o rueda) y se retira al terminar. */
+  function initIntro() {
+    // Ojo: <html> lleva data-intro (configuración); la capa de la intro usa data-intro-screen.
+    const intro = $('[data-intro-screen]');
+    if (!intro) return;
+    if (getComputedStyle(intro).display === 'none') {
+      intro.remove();
+      return;
+    }
+
+    const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    let finished = false;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      events.forEach((type) => window.removeEventListener(type, skip, true));
+      intro.remove();
+    };
+
+    function skip() {
+      events.forEach((type) => window.removeEventListener(type, skip, true));
+      // Si el título del inicio todavía no se animó, se anima de inmediato.
+      if (performance.now() < 2300) {
+        const hero = $('.hero');
+        if (hero) hero.classList.add('is-replay');
+      }
+      intro.classList.add('is-leaving');
+      setTimeout(finish, 400);
+    }
+
+    intro.addEventListener('animationend', (event) => {
+      if (event.target === intro && event.animationName === 'intro-done') finish();
+    });
+    events.forEach((type) => window.addEventListener(type, skip, { capture: true, passive: true }));
+  }
+
   /* Enlaces de WhatsApp con mensaje prellenado (data-wa="mensaje") */
   function initWhatsappLinks() {
     $$('[data-wa]').forEach((link) => {
@@ -42,53 +80,46 @@
     });
   }
 
-  /* Encabezado: fondo sólido al hacer scroll */
-  function initHeader() {
-    const header = $('[data-header]');
-    if (!header) return;
-
-    const update = () => header.classList.toggle('is-scrolled', window.scrollY > 16);
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-  }
-
-  /* Menú móvil */
+  /* Menú lateral: en móvil y tablet se abre como panel desde la derecha */
   function initMenu() {
-    const header = $('[data-header]');
     const toggle = $('[data-menu-toggle]');
     const nav = $('[data-nav]');
-    if (!header || !toggle || !nav) return;
+    const backdrop = $('[data-nav-backdrop]');
+    if (!toggle || !nav) return;
 
     const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
-    const setOpen = (open) => {
+    const setOpen = (open, { returnFocus = true } = {}) => {
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
       nav.classList.toggle('is-open', open);
-      header.classList.toggle('is-open', open);
+      if (backdrop) backdrop.classList.toggle('is-open', open);
+      document.documentElement.classList.toggle('nav-open', open);
+
+      if (open) {
+        const first = $('.dock__link', nav);
+        if (first) first.focus({ preventScroll: true });
+      } else if (returnFocus) {
+        toggle.focus({ preventScroll: true });
+      }
     };
 
     toggle.addEventListener('click', () => setOpen(!isOpen()));
+    if (backdrop) backdrop.addEventListener('click', () => setOpen(false));
     nav.addEventListener('click', (event) => {
-      if (event.target.closest('a')) setOpen(false);
+      if (isOpen() && event.target.closest('a')) setOpen(false, { returnFocus: false });
     });
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && isOpen()) {
-        setOpen(false);
-        toggle.focus();
-      }
+      if (event.key === 'Escape' && isOpen()) setOpen(false);
     });
-    document.addEventListener('click', (event) => {
-      if (isOpen() && !header.contains(event.target)) setOpen(false);
-    });
-    window.matchMedia('(min-width: 960px)').addEventListener('change', (event) => {
-      if (event.matches) setOpen(false);
+    window.matchMedia('(min-width: 1024px)').addEventListener('change', (event) => {
+      if (event.matches && isOpen()) setOpen(false, { returnFocus: false });
     });
   }
 
-  /* Resalta en el menú la sección visible */
+  /* Resalta en la barra lateral la sección visible */
   function initScrollSpy() {
     if (!supportsObserver) return;
-    const links = $$('[data-nav] .nav__link');
+    const links = $$('[data-nav] .dock__list:not(.dock__list--social) .dock__link');
     const linkFor = (id) => links.find((link) => link.getAttribute('href') === `#${id}`);
 
     const observer = new IntersectionObserver((entries) => {
@@ -316,6 +347,53 @@
     }, { threshold: steps }).observe(bar);
   }
 
+  /* Contacto: el aire acondicionado empieza con falla y se "repara" a medida que
+     se llena el formulario; con los datos obligatorios completos sopla aire frío
+     y el formulario se congela. */
+  function initContactLab() {
+    const lab = $('[data-ac-lab]');
+    const form = $('[data-wa-form]');
+    if (!lab || !form) return;
+
+    const title = $('[data-ac-title]', lab);
+    const text = $('[data-ac-text]', lab);
+    const display = $('[data-ac-display]', lab);
+    const meter = $('[data-ac-meter]', lab);
+    const { nombre, servicio, equipo, mensaje } = form.elements;
+
+    const STATES = {
+      broken: ['Tu aire está fallando', 'Completa el formulario y lo dejamos como nuevo.', 'E1'],
+      repairing: ['Reparando…', 'Completa tu nombre y el servicio para que vuelva a enfriar.', '- -'],
+      working: ['¡Aire funcionando!', 'Tu solicitud está lista. Envíala por WhatsApp.', '18°'],
+    };
+
+    const isFilled = (field) => Boolean(field && String(field.value).trim());
+    let current = '';
+
+    const update = () => {
+      const filled = [nombre, servicio, equipo, mensaje].filter(isFilled).length;
+      const ready = isFilled(nombre) && isFilled(servicio);
+      const state = ready ? 'working' : filled > 0 ? 'repairing' : 'broken';
+      const progress = ready ? 1 : (filled / 4) * 0.75;
+
+      form.style.setProperty('--frost', (ready ? 1 : progress * 0.6).toFixed(2));
+      form.classList.toggle('is-frozen', ready);
+      if (meter) meter.style.setProperty('--progress', progress.toFixed(2));
+
+      if (state === current) return;
+      current = state;
+      lab.dataset.acState = state;
+      const [heading, detail, screen] = STATES[state];
+      if (title) title.textContent = heading;
+      if (text) text.textContent = detail;
+      if (display) display.textContent = screen;
+    };
+
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+  }
+
   /* Formulario: arma el mensaje y lo abre en WhatsApp (sin servidor) */
   function initForm() {
     const form = $('[data-wa-form]');
@@ -359,8 +437,8 @@
     $$('[data-year]').forEach((el) => { el.textContent = year; });
   }
 
+  initIntro();
   initWhatsappLinks();
-  initHeader();
   initMenu();
   initScrollSpy();
   initVideos();
@@ -368,6 +446,7 @@
   initFooter();
   initWhatsappWidget();
   initFloatingLift();
+  initContactLab();
   initForm();
   initYear();
 })();
