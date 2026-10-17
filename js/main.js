@@ -54,12 +54,13 @@
       finished = true;
       events.forEach((type) => window.removeEventListener(type, skip, true));
       intro.remove();
+      document.dispatchEvent(new Event('intro:fin'));
     };
 
     function skip() {
       events.forEach((type) => window.removeEventListener(type, skip, true));
-      // Si el título del inicio todavía no se animó, se anima de inmediato.
-      if (performance.now() < 2300) {
+      // Si el título del inicio todavía no se animó (empieza a los 7.2 s), se anima de inmediato.
+      if (performance.now() < 7000) {
         const hero = $('.hero');
         if (hero) hero.classList.add('is-replay');
       }
@@ -319,7 +320,7 @@
       $('[data-wa-teaser-open]', teaser).addEventListener('click', () => setOpen(true));
       $('[data-wa-teaser-close]', teaser).addEventListener('click', hideTeaser);
 
-      if (!session.get('wa-teaser-visto')) {
+      const startTeaser = () => {
         teaserTimer = setTimeout(() => {
           if (isOpen()) return;
           session.set('wa-teaser-visto', '1');
@@ -330,6 +331,12 @@
           // El mensaje se retira solo; el indicador "1" se mantiene en el botón.
           teaserTimer = setTimeout(fadeTeaser, 12000);
         }, CONFIG.teaserDelay);
+      };
+
+      if (!session.get('wa-teaser-visto')) {
+        // Si la intro está en pantalla, el aviso espera a que termine.
+        if ($('[data-intro-screen]')) document.addEventListener('intro:fin', startTeaser, { once: true });
+        else startTeaser();
       }
     }
   }
