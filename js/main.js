@@ -9,7 +9,10 @@
     // Número de WhatsApp con indicativo de país, solo dígitos (sin "+", espacios ni guiones).
     whatsapp: '19392029114',
     defaultMessage: 'Hola Gabriel Refrigeration, quiero información sobre el mantenimiento y la limpieza de mi aire acondicionado.',
-    // Milisegundos antes de mostrar el mensaje junto al botón de WhatsApp.
+    // true = mostrar el mensaje emergente junto al botón flotante de WhatsApp.
+    // Desactivado para no saturar con avisos; el botón flotante sigue visible.
+    showTeaser: false,
+    // Milisegundos antes de mostrar ese mensaje (si showTeaser es true).
     teaserDelay: 8000,
     // true = no reproducir los videos automáticamente si el sistema pide "reducir movimiento".
     // Por defecto se reproducen siempre y el botón de pausa queda visible.
@@ -316,7 +319,7 @@
       if (isOpen() && !widget.contains(event.target)) setOpen(false, { returnFocus: false });
     });
 
-    if (teaser) {
+    if (teaser && CONFIG.showTeaser) {
       $('[data-wa-teaser-open]', teaser).addEventListener('click', () => setOpen(true));
       $('[data-wa-teaser-close]', teaser).addEventListener('click', hideTeaser);
 
@@ -352,6 +355,18 @@
       const lift = entry.isIntersecting ? Math.round(entry.intersectionRect.height) : 0;
       widget.style.setProperty('--wa-lift', `${lift}px`);
     }, { threshold: steps }).observe(bar);
+  }
+
+  /* Oculta el botón flotante mientras los botones del hero (que ya incluyen
+     WhatsApp) están en pantalla, para no mostrar dos botones de WhatsApp juntos. */
+  function initFloatingTuck() {
+    const widget = $('[data-wa-widget]');
+    const actions = $('.hero__actions');
+    if (!widget || !actions || !supportsObserver) return;
+
+    new IntersectionObserver(([entry]) => {
+      widget.classList.toggle('is-tucked', entry.isIntersecting);
+    }).observe(actions);
   }
 
   /* Contacto: el aire acondicionado empieza con falla y se "repara" a medida que
@@ -453,6 +468,7 @@
   initFooter();
   initWhatsappWidget();
   initFloatingLift();
+  initFloatingTuck();
   initContactLab();
   initForm();
   initYear();

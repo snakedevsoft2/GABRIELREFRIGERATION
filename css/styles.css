@@ -848,14 +848,9 @@ button {
   font-weight: 800;
 }
 
-/* En pantallas angostas solo el ícono (sigue llamando al tocarlo) */
+/* En celular se oculta: el botón "Llamar al…" con el número queda justo debajo */
 @media (max-width: 599.98px) {
   .hero__call {
-    margin-right: 0;
-    padding: .2rem;
-  }
-
-  .hero__call-text {
     display: none;
   }
 }
@@ -907,9 +902,10 @@ button {
   text-shadow: 0 1px 12px rgb(4 14 34 / 80%);
 }
 
+/* "Llamar al +1 939-655-5329" (principal) y WhatsApp, del mismo ancho */
 .hero__actions {
-  --btn-min: 17rem;
-  max-width: 36rem;
+  --btn-min: 20.5rem;
+  max-width: 42rem;
   margin-top: 2rem;
 }
 
@@ -2059,15 +2055,9 @@ button {
   color: var(--blue-600);
 }
 
+/* "Llamar al…" con el número y Facebook, uno debajo del otro a todo el ancho */
 .channels {
-  --btn-min: 9.5rem;
-}
-
-/* En celular los tres canales se apilan a todo el ancho */
-@media (max-width: 599.98px) {
-  .channels {
-    --btn-min: 100%;
-  }
+  --btn-min: 100%;
 }
 
 @media (max-width: 959.98px) {
@@ -2563,7 +2553,15 @@ button {
   bottom: clamp(1rem, 2.5vw, 1.6rem);
   z-index: 60;
   transform: translateY(calc(var(--wa-lift, 0px) * -1));
-  transition: transform .3s var(--ease);
+  transition: transform .3s var(--ease), opacity .3s var(--ease), visibility .3s;
+}
+
+/* is-tucked (JS): se oculta mientras los botones del hero, que ya incluyen
+   WhatsApp, están en pantalla; así nunca hay dos botones de WhatsApp juntos. */
+.wa-widget.is-tucked:not(.is-open) {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.5rem);
 }
 
 .wa-fab {
