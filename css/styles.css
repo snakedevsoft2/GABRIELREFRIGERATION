@@ -362,24 +362,15 @@ button {
   background: rgb(255 255 255 / 16%);
 }
 
-/* Botón de canal sobre fondo oscuro (footer) */
-.btn--channel {
-  border-color: rgb(255 255 255 / 16%);
-  background: rgb(255 255 255 / 6%);
-  color: #fff;
+/* Botón de llamadas: amarillo de la marca con texto azul marino */
+.btn--call {
+  background: var(--yellow-400);
+  color: var(--navy-900);
+  box-shadow: 0 10px 24px -12px rgb(245 184 0 / 70%);
 }
 
-.btn--channel:hover {
-  border-color: rgb(255 255 255 / 34%);
-  background: rgb(255 255 255 / 12%);
-}
-
-.icon--wa {
-  color: var(--wa-brand);
-}
-
-.icon--fb {
-  color: var(--fb-light);
+.btn--call:hover {
+  background: #E0A800;
 }
 
 /* Grupo de botones: todos del mismo ancho. Si no caben en una fila
@@ -556,6 +547,18 @@ button {
   color: #fff;
 }
 
+.dock__link--call .dock__icon {
+  color: var(--yellow-400);
+}
+
+.dock__link--call:hover .dock__icon,
+.dock__link--call:focus-visible .dock__icon,
+.dock__link--call:hover .dock__label,
+.dock__link--call:focus-visible .dock__label {
+  background: var(--yellow-400);
+  color: var(--navy-900);
+}
+
 @media (max-width: 1023.98px) {
   .menu-toggle {
     position: fixed;
@@ -698,8 +701,11 @@ button {
   .dock__link--wa:hover .dock__label,
   .dock__link--wa:focus-visible .dock__label,
   .dock__link--fb:hover .dock__label,
-  .dock__link--fb:focus-visible .dock__label {
+  .dock__link--fb:focus-visible .dock__label,
+  .dock__link--call:hover .dock__label,
+  .dock__link--call:focus-visible .dock__label {
     background: none;
+    color: #fff;
     transform: scale(1.12);
   }
 
@@ -795,6 +801,63 @@ button {
   display: flex;
   align-items: center;
   gap: .5rem;
+}
+
+/* Botón de llamadas en la parte superior del inicio */
+.hero__call {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-right: .35rem;
+  padding: .4rem 1rem .4rem .45rem;
+  border-radius: 999px;
+  background: var(--yellow-400);
+  box-shadow: 0 10px 24px -12px rgb(245 184 0 / 75%);
+  color: var(--navy-900);
+  white-space: nowrap;
+  transition: background-color .2s var(--ease), transform .2s var(--ease);
+}
+
+.hero__call:hover {
+  background: #E0A800;
+  transform: translateY(-1px);
+}
+
+.hero__call .icon {
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border-radius: 50%;
+  background: rgb(10 26 51 / 12%);
+}
+
+.hero__call-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.hero__call-text small {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.hero__call-text strong {
+  font-size: .95rem;
+  font-weight: 800;
+}
+
+/* En pantallas angostas solo el ícono (sigue llamando al tocarlo) */
+@media (max-width: 599.98px) {
+  .hero__call {
+    margin-right: 0;
+    padding: .2rem;
+  }
+
+  .hero__call-text {
+    display: none;
+  }
 }
 
 .hero__content {
@@ -1145,27 +1208,6 @@ button {
 .service-card p {
   flex: 1;
   margin-top: .6rem;
-}
-
-.service-card__link {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  align-self: flex-start;
-  margin-top: 1.35rem;
-  font-size: .95rem;
-  font-weight: 700;
-  color: var(--wa-800);
-}
-
-.service-card__link .icon {
-  width: 18px;
-  height: 18px;
-  transition: transform .25s var(--ease);
-}
-
-.service-card__link:hover .icon {
-  transform: translateX(4px);
 }
 
 @media (max-width: 1023.98px) {
@@ -2018,7 +2060,14 @@ button {
 }
 
 .channels {
-  --btn-min: 10rem;
+  --btn-min: 9.5rem;
+}
+
+/* En celular los tres canales se apilan a todo el ancho */
+@media (max-width: 599.98px) {
+  .channels {
+    --btn-min: 100%;
+  }
 }
 
 @media (max-width: 959.98px) {
@@ -2258,11 +2307,6 @@ button {
   color: var(--on-dark-muted);
 }
 
-.footer__actions {
-  --btn-min: 9rem;
-  max-width: 22rem;
-}
-
 .footer__title {
   margin-bottom: 1.15rem;
   font-size: .78rem;
@@ -2332,10 +2376,11 @@ button {
   color: var(--blue-300);
 }
 
-.footer__contact li:nth-child(1) .icon { color: var(--wa-brand); }
-.footer__contact li:nth-child(2) .icon { color: var(--yellow-400); }
-.footer__contact li:nth-child(3) .icon { color: var(--fb-light); }
-.footer__contact li:nth-child(4) .icon { color: #FF6B5E; }
+.footer__contact li:nth-child(1) .icon { color: var(--yellow-400); }
+.footer__contact li:nth-child(2) .icon { color: var(--wa-brand); }
+.footer__contact li:nth-child(3) .icon { color: #7DD3FC; }
+.footer__contact li:nth-child(4) .icon { color: var(--fb-light); }
+.footer__contact li:nth-child(5) .icon { color: #FF6B5E; }
 
 /* Mapa de Google */
 .map {
@@ -2488,10 +2533,6 @@ button {
   .footer__grid {
     grid-template-columns: 1fr;
     gap: 2rem;
-  }
-
-  .footer__actions {
-    max-width: none;
   }
 
   /* Espacio para el botón flotante de WhatsApp, que se eleva sobre la barra inferior */
@@ -3063,7 +3104,7 @@ button {
   position: absolute;
   top: -30%;
   bottom: -30%;
-  left: 44%;
+  left: 62%;
   width: 16px;
   background: var(--yellow-400);
   box-shadow: 26px 0 0 var(--blue-600);
@@ -3075,7 +3116,16 @@ button {
   position: absolute;
   inset: 0 0 auto;
   height: 5px;
-  background: linear-gradient(90deg, var(--yellow-400) 0 44%, var(--blue-600) 44% 100%);
+  background: linear-gradient(90deg, var(--yellow-400) 0 62%, var(--blue-600) 62% 100%);
+}
+
+/* WhatsApp y llamadas juntos a la izquierda */
+.intro__band-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4rem 2rem;
 }
 
 .intro__band-item {
@@ -3097,6 +3147,10 @@ button {
 
 .intro__band-item--wa .icon {
   color: var(--wa-brand);
+}
+
+.intro__band-item--tel .icon {
+  color: var(--yellow-400);
 }
 
 /* El equipo va arriba a la izquierda, como montado en la pared */
@@ -3229,11 +3283,11 @@ button {
   }
 
   .intro__band::before {
-    left: 78%;
+    left: 90%;
   }
 
   .intro__band::after {
-    background: linear-gradient(90deg, var(--yellow-400) 0 78%, var(--blue-600) 78% 100%);
+    background: linear-gradient(90deg, var(--yellow-400) 0 90%, var(--blue-600) 90% 100%);
   }
 }
 
