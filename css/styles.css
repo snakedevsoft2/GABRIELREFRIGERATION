@@ -3117,15 +3117,6 @@ button {
   background: linear-gradient(90deg, var(--yellow-400) 0 62%, var(--blue-600) 62% 100%);
 }
 
-/* WhatsApp y llamadas juntos a la izquierda */
-.intro__band-group {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: .4rem 2rem;
-}
-
 .intro__band-item {
   position: relative;
   display: inline-flex;
@@ -3143,12 +3134,14 @@ button {
   height: 1.35em;
 }
 
-.intro__band-item--wa .icon {
-  color: var(--wa-brand);
+/* Llamadas y WhatsApp comparten número: los dos íconos van juntos */
+.intro__icon-tel {
+  color: var(--yellow-400);
 }
 
-.intro__band-item--tel .icon {
-  color: var(--yellow-400);
+.intro__icon-wa {
+  margin-left: -.25rem;
+  color: var(--wa-brand);
 }
 
 /* El equipo va arriba a la izquierda, como montado en la pared */
